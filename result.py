@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import time
-import re
+import pandas
 from selenium.webdriver.support import expected_conditions as EC
 
 # Darbs ar tīmekli
@@ -66,57 +66,62 @@ for i in darba_nosaukumi:
         time.sleep(1)
     except Exception:
         pass
-# print(darba_nosaukumi)
-# print(info_par_darbu)
+print(darba_nosaukumi)
+print(info_par_darbu)
     
-lap_skaitlis=30
-univer_lap='?op=search&search%5Bjob_salary%5D=3&search%5Blocations%5D%5B0%5D=129&search%5Bkeyword%5D=&ga_track=homepage&dir=1&sort=activation_date&start='
-while True:
-    page = f"{univer_lap}{lap_skaitlis}"
-    print(page)
+# lap_skaitlis=30
+# univer_lap='?op=search&search%5Bjob_salary%5D=3&search%5Blocations%5D%5B0%5D=129&search%5Bkeyword%5D=&ga_track=homepage&dir=1&sort=activation_date&start='
+# while True:
+#     page = f"{univer_lap}{lap_skaitlis}"
+#     print(page)
 
-    try:
-        nak_lapa = driver.find_element(By.CSS_SELECTOR, f'a[href="{page}"]')
-        nak_lapa.click()
+#     try:
+#         nak_lapa = driver.find_element(By.CSS_SELECTOR, f'a[href="{page}"]')
+#         nak_lapa.click()
 
-        h2_nosaukumi = driver.find_elements(By.TAG_NAME, 'h2')
-        for h2 in h2_nosaukumi:
-            darba_nosaukumi.append(h2.text)
+#         h2_nosaukumi = driver.find_elements(By.TAG_NAME, 'h2')
+#         for h2 in h2_nosaukumi:
+#             darba_nosaukumi.append(h2.text)
 
-            try:
-                konkrets_d_v = driver.find_element(By.XPATH, f'//h2[text()="{h2.text}"]')
-                current_window = driver.current_window_handle 
+#             try:
+#                 konkrets_d_v = driver.find_element(By.XPATH, f'//h2[text()="{h2.text}"]')
+#                 current_window = driver.current_window_handle 
 
-                konkrets_d_v.click()
+#                 konkrets_d_v.click()
 
-                WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
+#                 WebDriverWait(driver, 10).until(EC.number_of_windows_to_be(2))
 
-                new_window = [window for window in driver.window_handles if window != current_window][0]
-                driver.switch_to.window(new_window)
+#                 new_window = [window for window in driver.window_handles if window != current_window][0]
+#                 driver.switch_to.window(new_window)
 
-                salary_elements = driver.find_elements(By.XPATH, '//div[@class="bg-white shadow lg:rounded-xl px-6 py-7.5"]//div[@class="font-semibold"]')
-                salary_texts = [element.text for element in salary_elements]
-                info_par_darbu.extend(salary_texts)
+#                 salary_elements = driver.find_elements(By.XPATH, '//div[@class="bg-white shadow lg:rounded-xl px-6 py-7.5"]//div[@class="font-semibold"]')
+#                 salary_texts = [element.text for element in salary_elements]
+#                 info_par_darbu.extend(salary_texts)
 
-                driver.close()
+#                 driver.close()
 
-                driver.switch_to.window(current_window)
+#                 driver.switch_to.window(current_window)
 
-                time.sleep(1)
-            except Exception as e:
-                print(f"Ошибка во внутреннем цикле: {e}")
-    except Exception as e:
-        print(f"Ошибка во внешнем цикле: {e}")
-        break
+#                 time.sleep(1)
+#             except Exception as e:
+#                 print(f"Ошибка во внутреннем цикле: {e}")
+#     except Exception as e:
+#         print(f"Ошибка во внешнем цикле: {e}")
+#         break
 
-    lap_skaitlis += 30
-    time.sleep(1)
-
-# print(darba_nosaukumi)
-# print(info_par_darbu)
+#     lap_skaitlis += 30
+#     time.sleep(1)
 
 
 
+# info par darbu (sadalisana)
+i_p_d = [info_par_darbu[i:i+7] for i in range(0, len(info_par_darbu), 7)]
+
+# ieraksts Exel tabulā
+df=pandas.DataFrame({'Vakances nosaukums':darba_nosaukumi})
+df = pandas.DataFrame(i_p_d, columns=['Ievadīts', 'Publicēts līdz', 'Atrašanas vieta', 'Bruto alga', 'Darba laiks', 'Papildus informācija', 'Reģ.nr.'])
+df.to_excel('dati_pd.xlsx', index=False)
+# print(df)
 
 
 
